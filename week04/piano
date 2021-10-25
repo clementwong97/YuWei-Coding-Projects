@@ -25,6 +25,19 @@ BSD license, all text above must be included in any redistribution
 //Buzzer port number
 const int buzzer = 9;
 
+//Define the note frequencies
+int note[0] = 262;
+int note[1] = 294;
+int note[2] = 330;
+int note[3] = 349;
+int note[4] = 392;
+int note[5] = 440;
+int note[6] = 494;
+int note[7] = 523;
+int note[8] = 587;
+int note[9] = 659;
+int note[10] = 698;
+int note[11] = 784;
 
 // You can have up to 4 on one i2c bus but one is enough for testing!
 Adafruit_MPR121 cap = Adafruit_MPR121();
@@ -62,7 +75,7 @@ void loop() {
     // it if *is* touched and *wasnt* touched before, alert!
     if ((currtouched & _BV(i)) && !(lasttouched & _BV(i)) ) {
       Serial.print(i); Serial.println(" touched");
-      tone(buzzer, 1000);
+      tone(buzzer, note[i]);
     }
     // if it *was* touched and now *isnt*, alert!
     if (!(currtouched & _BV(i)) && (lasttouched & _BV(i)) ) {
