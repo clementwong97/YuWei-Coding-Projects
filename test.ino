@@ -22,3 +22,13 @@ void loop() {
 }
 
 
+
+
+if (value >= 100)
+{
+    //make sound
+}
+else
+{
+    //don't make sound
+}
