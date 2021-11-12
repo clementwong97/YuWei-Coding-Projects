@@ -1,3 +1,5 @@
+//test code
+
 let camera, scene, renderer, cube;
 
 function init() {
