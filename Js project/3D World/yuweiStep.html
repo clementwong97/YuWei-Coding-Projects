@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Yuwei's first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+
+	<body>
+		<script src="https://threejs.org/build/three.js"></script>
+		<script>
+            //var mouse
+            var mouseX=0;
+            var mouseY=0;
+
+            //Important 3 things: scene, camera and renderer
+
+            //Creating the scene
+			const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+            
+            //The cube
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial( { color: 0x00ffff } );
+            const cube = new THREE.Mesh( geometry, material );
+            scene.add( cube );
+
+            //Move the camera outside the cube
+            camera.position.z = 5;
+
+            //Rendering: we started to see something
+            function animate() {
+            //(Function) requestAnimationFrame --loop,but pause when user witch the page
+	        requestAnimationFrame( animate );
+        
+            //(Animating the cube)
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            //(/Animating the cube)
+
+	        renderer.render( scene, camera );
+            }
+            animate();
+             //(/FunctionrequestAnimationFrame )
+
+
+		</script>
+	</body>
+</html>
