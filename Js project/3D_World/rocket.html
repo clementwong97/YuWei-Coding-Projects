@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA_compatible" content="ie=edge"/>
+        <title>Three JS Example</title>
+        <style>
+            body {
+                margin: 0;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+	<body>
+		<script src="//cdn.rawgit.com/mrdoob/three.js/master/build/three.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script src="./orbitcontrol.js"></script>
+		<script>
+
+          //set 
+          let scene, camera, render, ConeGeometry, cylinder, Octahedron;
+          
+          function init()
+          {
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera(
+                60,
+                window.innerWidth/window.innerHeight,
+                45,
+                15000
+            );
+
+            camera.position.set(0,0,5000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias:true });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            document.body.appendChild(renderer.domElement);
+
+            
+            //control camera and limit the zoom 
+            let controls = new THREE.OrbitControls(camera);
+            controls.addEventListener('change', renderer);
+            controls.minDistance = 500;
+            controls.maxDistance = 2500;
+            
+            //Big sky box?  
+            //box
+            let materialArray = [];
+//             let material22 = [];
+//             let material33 = [];
+//          var myTextureLoader = new THREE.TextureLoader();
+//   var myTexture = myTextureLoader.load('eyeball.png');
+//   var material = new THREE.MeshBasicMaterial({map: myTexture});
+            
+            
+            let texture_ft = new THREE.TextureLoader().load( './blizzard_ft.jpg');
+            let texture_bk = new THREE.TextureLoader().load( './blizzard_bk.jpg');
+            let texture_up = new THREE.TextureLoader().load( './blizzard_up.jpg');
+            let texture_dn = new THREE.TextureLoader().load( './blizzard_dn.jpg');
+            let texture_rt = new THREE.TextureLoader().load( './blizzard_rt.jpg');
+            let texture_lf = new THREE.TextureLoader().load( './blizzard_lf.jpg');
+            //top
+//            var myTextureLoader = new THREE.TextureLoader();
+//            var myTexture = myTextureLoader.load('sky.jpeg');
+            let uni = new THREE.TextureLoader().load('./uni.jpeg');
+            let metal = new THREE.TextureLoader().load('./metal.jpg');
+            
+            
+            //box
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
+            //top
+            materialArray.push(new THREE.MeshBasicMaterial( { map: uni }));
+
+   
+            for (let i = 0; i < 6; i++)
+            {
+                materialArray[i].side = THREE.BackSide;
+            }
+           
+            let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
+            let skybox = new THREE.Mesh( skyboxGeo, materialArray );
+            scene.add( skybox );
+            
+            
+            
+            //Add Top
+            const geometry = new THREE.ConeGeometry( 300, 400, 32 );
+            const material = new THREE.MeshBasicMaterial( {color:0xffff00  } );
+            const cone = new THREE.Mesh( geometry, material );
+            //let ConeGeometry.position = ()
+            cone.position.set(0, 400, 0);
+            scene.add( cone );  
+          
+            
+            
+            
+            //body
+            const geometry2 = new THREE.CylinderGeometry( 300 , 500, 1000, 520 );
+            const material2 = new THREE.MeshBasicMaterial( {color: 0x00000ff} );
+            const cylinder = new THREE.Mesh( geometry2, material2 );
+            cylinder.position.set(0, -300, 0);
+            scene.add( cylinder );
+            
+            
+            //OctahedronGeometry
+            const geometry3 = new THREE.CylinderGeometry( 500 , 500, 4000, 600 );
+            const material3 = new THREE.MeshBasicMaterial( {map: metal} );
+            const cylinder2 = new THREE.Mesh( geometry3, material3 );
+//            let skybox = new THREE.Mesh( skyboxGeo, material33 );
+            cylinder2.position.set(0, -2700, 0);
+           scene.add( cylinder2 );
+            
+            
+            
+            
+            
+            
+            
+            animate();
+            }
+            
+            function animate(){
+                
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate)
+            }
+
+            init();
+		</script>
+	</body>
+</html>
