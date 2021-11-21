@@ -38,6 +38,29 @@ int sensorValue2 = 0;
 int sensorValue3 = 0;
 int sensorValue4 = 0;
 
+// You can have up to 4 on one i2c bus but one is enough for testing!
+Adafruit_MPR121 cap = Adafruit_MPR121();
+
+// Keeps track of the last pins touched
+// so we know when buttons are 'released'
+uint16_t lasttouched = 0;
+uint16_t currtouched = 0;
+uint16_t press = 0;
+
+//Define the note frequencies (C1 D1 E1 F1 G1 A1 B1 C2 D2 E2 F2 G2)
+int music_1[5] = {C_1, D_1, E_1, F_1, G_1};
+int music_2[5] = {G_1, F_1, E_1, D_1, C_1};
+int music_3[5] = {G_2, F_2, E_2, D_2, C_2};
+int music_4[5] = {C_2, D_2, E_2, F_2, G_2};
+
+// Change to 0.5 for a slower version of the song, 1.25 for a faster version
+const float songSpeed = 1.0;
+
+
+int durations[] = {
+    125, 125, 250, 125, 125,
+};
+
 /*
 Maze Game
 - Play the maze and then the ball will reach one of the 4 ending points
@@ -47,6 +70,7 @@ Maze Game
 - Play the music depending on the box
 */
 
+//Setup Function
 void setup()
 {
     Serial.begin(9600);
@@ -63,6 +87,15 @@ void setup()
     pinMode(LED3, OUTPUT);
     pinMode(LED4, OUTPUT);
 
+    Serial.println("Adafruit MPR121 Capacitive Touch sensor test"); 
+  
+    // Default address is 0x5A, if tied to 3.3V its 0x5B
+    // If tied to SDA its 0x5C and if SCL then 0x5D
+    if (!cap.begin(0x5A)) {
+    Serial.println("MPR121 not found, check wiring?");
+    while (1);
+    }
+    Serial.println("MPR121 found!");
 }
 
 //Main Function
@@ -71,7 +104,12 @@ void loop()
     //LDR to check if ball has arrived at the point
     light_up();
     read_LDR();
+    read_touch();
+    play_music();
+    
 }
+
+/********  Sub-Functions  *******/
 
 //Control the LED
 void light_up()
@@ -138,6 +176,148 @@ void read_LDR()
 
     delay(100);
     
+}
+
+//Enable Touch Sensor
+void read_touch()
+{
+    // Get the currently touched pads
+    currtouched = cap.touched();
+  
+    for (uint8_t i=0; i<2; i++) 
+    {
+        // it if *is* touched and *wasnt* touched before, alert!
+        if ((currtouched & _BV(i)) && !(lasttouched & _BV(i)) ) 
+        {
+            Serial.print(i); Serial.println(" touched");
+            // for (uint8_t j=0; j<4; j++)
+            // {
+            //     tone(buzzer, note[j]);
+            // }
+            press = i;
+        }
+
+        // if it *was* touched and now *isnt*, alert!
+        if (!(currtouched & _BV(i)) && (lasttouched & _BV(i)) ) 
+        {
+            Serial.print(i); Serial.println(" released");
+            //noTone(buzzer);
+        }
+    }
+
+    // reset our state
+    lasttouched = currtouched;
+
+    // // comment out this line for detailed data from the sensor!
+    // return;
+
+    // // debugging info, what
+    // Serial.print("\t\t\t\t\t\t\t\t\t\t\t\t\t 0x"); Serial.println(cap.touched(), HEX);
+    // Serial.print("Filt: ");
+    // for (uint8_t i=0; i<12; i++) {
+    //     Serial.print(cap.filteredData(i)); Serial.print("\t");
+    // }
+    // Serial.println();
+    // Serial.print("Base: ");
+    // for (uint8_t i=0; i<12; i++) {
+    //     Serial.print(cap.baselineData(i)); Serial.print("\t");
+    // }
+    // Serial.println();
+    
+    // // put a delay so it isn't overwhelming
+    // delay(100);
+}
+
+void play_music()
+{
+    if (press == 1)
+    {
+        for (uint8_t j=0; j<5; j++)
+        {
+            const int currentNote = music_1[j];
+            float wait = durations[j] / songSpeed;
+            // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
+            if (currentNote != 0)
+            {
+                tone(buzzer, music_1[j], wait);
+            }
+            else
+            {
+                noTone(buzzer);
+                press = 0;
+            }
+            
+            delay(wait);
+        }
+
+        press = 0;
+    }
+    else if (press == 2)
+    {
+        for (uint8_t j=0; j<5; j++)
+        {
+            const int currentNote = music_2[j];
+            float wait = durations[j] / songSpeed;
+            // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
+            if (currentNote != 0)
+            {
+                tone(buzzer, music_2[j], wait);
+            }
+            else
+            {
+                noTone(buzzer);
+                press = 0;
+            }
+            
+            delay(wait);
+        }
+
+        press = 0;
+    }
+    else if (press == 3)
+    {
+        for (uint8_t j=0; j<5; j++)
+        {
+            const int currentNote = music_3[j];
+            float wait = durations[j] / songSpeed;
+            // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
+            if (currentNote != 0)
+            {
+                tone(buzzer, music_3[j], wait);
+            }
+            else
+            {
+                noTone(buzzer);
+                press = 0;
+            }
+            
+            delay(wait);
+        }
+
+        press = 0;
+    }
+    else if (press == 4)
+    {
+        for (uint8_t j=0; j<5; j++)
+        {
+            const int currentNote = music_4[j];
+            float wait = durations[j] / songSpeed;
+            // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
+            if (currentNote != 0)
+            {
+                tone(buzzer, music_4[j], wait);
+            }
+            else
+            {
+                noTone(buzzer);
+                press = 0;
+            }
+            
+            delay(wait);
+        }
+
+        press = 0;
+    }
 }
 //maze and ball, when the ball reaches the LDR sensor (4) -> LEDs lights up
 
