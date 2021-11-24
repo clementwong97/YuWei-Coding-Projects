@@ -184,7 +184,7 @@ void read_touch()
     // Get the currently touched pads
     currtouched = cap.touched();
   
-    for (uint8_t i=0; i<2; i++) 
+    for (uint8_t i=0; i<5; i++) 
     {
         // it if *is* touched and *wasnt* touched before, alert!
         if ((currtouched & _BV(i)) && !(lasttouched & _BV(i)) ) 
