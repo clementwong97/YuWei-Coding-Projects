@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="420" height="600"></canvas>
+    <canvas id="myCanvas2" width="420" height="600"></canvas>
+    <script>
+      
+        var mouseX;
+        var mouseY;
+        var imageObj = new Image();
+        imageObj.src = "moon.jpeg";
+
+        var canvas = document.getElementById('myCanvas');
+        var canvas2 = document.getElementById('myCanvas2');
+        canvas.addEventListener('mousemove', getMouse, false);
+
+        var context = canvas.getContext('2d');
+        var context2 = canvas2.getContext('2d');
+        var imageWidth = imageObj.width;
+        var imageHeight = imageObj.height;
+
+        context2.drawImage(imageObj, 0, 0);
+
+        var imageData = context2.getImageData(0, 0, imageWidth, imageHeight);
+        var data = imageData.data;
+        var imageData2 = context.getImageData(0, 0, imageWidth, imageHeight);
+        //var imageData2 = imageData;
+      
+      var draw = function() {
+        // 
+        // Remember - Don't mess with the Alpha channel (channel number 4)
+        // Unless you are confident you want to put something behind
+        // or generate trails
+        // or something
+    	var mouseMod = mouseX - imageWidth/2;
+            // iterate over all pixels
+        for(var i = 0; i < imageHeight; i++) {
+          // loop through each row
+          for(var j = 0; j < imageWidth; j++) {
+          
+            
+            imageData2.data[((imageWidth * i) + j) * 4] = (-1*(data[((imageWidth * i) + j-1) * 4])) + (data[((imageWidth * i) + j+1) * 4]) + mouseMod;
+            imageData2.data[((imageWidth * i) + j) * 4+1] = (-1*(data[((imageWidth * i) + j-1) * 4+1])) + (data[((imageWidth * i) + j+1) * 4]) +  mouseMod;
+            imageData2.data[((imageWidth * i) + j) * 4+2] = (-1*(data[((imageWidth * i) + j-1) * 4+2])) + (data[((imageWidth * i) + j+1) * 4]) +  mouseMod;
+            // This is the alpha - it makes stuff disappear..
+            // So perhaps leave this one alone unless
+            // you want the image to fade away
+            imageData2.data[((imageWidth * i) + j) * 4+3] = data[((imageWidth * i) + j) * 4 + 3];
+
+
+           // This is the X gradient           
+            imageData2.data[((imageWidth * i) + j) * 4] = (-1*(data[((imageWidth * i) + j-1) * 4])) + (data[((imageWidth * i) + j+1) * 4])+ mouseMod;
+            imageData2.data[((imageWidth * i) + j) * 4+1] = (-1*(data[((imageWidth * i) + j-1) * 4+1])) + (data[((imageWidth * i) + j+1) * 4])+ mouseMod;
+            imageData2.data[((imageWidth * i) + j) * 4+2] = (-1*(data[((imageWidth * i) + j-1) * 4+2])) + (data[((imageWidth * i) + j+1) * 4])+ mouseMod;
+            imageData2.data[((imageWidth * i) + j) * 4+3] = 0;
+            
+// This is the Y gradient
+            imageData3.data[((imageWidth * i) + j) * 4] = (-1*(data[((collm1) + j-1) * 4])) + (data[((collp1) + j+1) * 4])+ mouseMod;
+            imageData3.data[((imageWidth * i) + j) * 4+1] = (-1*(data[((collm1) + j-1) * 4+1])) + (data[((collp1) + j+1) * 4])+ mouseMod;
+            imageData3.data[((imageWidth * i) + j) * 4+2] = (-1*(data[((collm1) + j-1) * 4+2])) + (data[((collp1) + j+1) * 4])+ mouseMod;
+            imageData3.data[((imageWidth * i) + j) * 4+3] = 0;
+             
+         
+          }
+        }
+    
+        context.putImageData(imageData2,0,0);
+		requestAnimationFrame(draw);
+        console.log(mouseMod);
+      };
+ 
+ 
+      
+		requestAnimationFrame(draw);
+ 
+          function getMouse(mousePosition) {
+
+            if (mousePosition.layerX || mousePosition.layerX === 0) {
+                mouseX = mousePosition.layerX;
+                mouseY = mousePosition.layerY;
+            } else if (mousePosition.offsetX || mousePosition.offsetX === 0) { 
+                mouseX = mousePosition.offsetX;
+                mouseY = mousePosition.offsetY;
+            }
+        }     
+
+    </script>
+  </body>
+</html>     
