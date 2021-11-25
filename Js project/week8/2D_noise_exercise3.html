@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+     <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body, #container {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		// switch on high precision floats
+		precision highp float;
+		varying vec3 myNormal;
+        uniform highp vec2 mouse;
+        vec3 newPosition;
+        #define M_PI 3.14159265358979323846
+
+        float rand(vec3 x) {
+            return sin(cos(dot(x,mouse.xyx*1.))* 100.);
+        }
+
+		void main() {
+            
+            myNormal = normal;//normal is a built in attribute we can grab
+
+			//vec3 newPosition = position * (1.0 -(0.09 * (rand(position))));
+
+            vec3 newPosition = position * rand(position);
+
+            myNormal = normalize(newPosition);
+
+            // three.js provides the projection Matrix and the model View matrix. 
+            // We just pipe in our positions and add the normal
+            // We add a little bit of the normal so that
+            // we can get direction vectors of the surface
+            // We don't really need to do that all the time
+            // but it's a good technique to be aware of
+            
+			//gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition + (normal * 0.01),2.0);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition,2);
+		}
+	</script>
+	<script id="fragmentShader" type="x-shader/x-fragment">
+		//============================================================
+		//PUT YOUR GLSL CODE HERE
+		//============================================================
+
+ 	
+		precision highp float;
+        
+        uniform vec2 mouse;
+        uniform float time;
+        //these values are being passed by the vertex shader
+		varying vec3 myNormal;
+
+		void main() {
+
+            // light from the top
+			//vec3 light = vec3(0.,40.,0.);
+			vec3 light = vec3(sin(time),0,1);
+
+			// Get the normal of the light
+			// Remember the Unit Vector of the light is the direction of the light 
+			
+			light = normalize(light);
+			
+		    float prod = dot(myNormal,light);
+            // use the dot product of the normal and the light
+            // To calculate the shading for the sphere
+			gl_FragColor = vec4(prod, prod, prod, 1.0);
+			
+		}
+		//============================================================
+		//END OF GLSL CODE
+		//============================================================
+	</script>
+	<script>
+		//change the resolution here. 1 is highest
+		var pixel_resolution = 2;
+		var container, stats;
+		var camera, scene, renderer;
+		var uniforms;
+		init();
+		animate();
+		function init() {
+			container = document.getElementById('container');
+			camera = new THREE.Camera();
+			camera.position.z = 1;
+			scene = new THREE.Scene();
+			var geometry = new THREE.SphereBufferGeometry(1,1,100,100);//size x, size y, dim x, dim y 
+			uniforms = { time: { type: 'f', value: 1.0 }, resolution: { type: 'v2', value: new THREE.Vector2() }, mouse: {type: "v2", value: new THREE.Vector2()}};
+			var material = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: document.getElementById('vertexShader').textContent, fragmentShader: document.getElementById('fragmentShader').textContent });
+			var mesh = new THREE.Mesh(geometry, material);
+			scene.add(mesh);
+			renderer = new THREE.WebGLRenderer();
+			//Hack here to change resolution 
+			renderer.setPixelRatio(window.devicePixelRatio / pixel_resolution);
+			container.appendChild(renderer.domElement);
+			onWindowResize();
+			window.addEventListener('resize', onWindowResize, false);
+	        window.addEventListener('mousemove', onMouseMove, false);
+
+		}
+		function onWindowResize(event) {
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			uniforms.resolution.value.x = renderer.domElement.width;
+			uniforms.resolution.value.y = renderer.domElement.height;
+
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			render();
+		}
+		function onMouseMove( event ) {
+        	uniforms.mouse.value.x = 2 * ( event.clientX / window.innerWidth );
+ 	        uniforms.mouse.value.y = 2 * ( 1-(event.clientY) / window.innerHeight
+ 	        );
+        }
+		function render() {
+			uniforms.time.value += 0.01;
+			renderer.render(scene, camera);
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  	<style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+     <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body, #container {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		void main() { gl_Position = vec4( position, 1.0 ); }
+	</script>
+	<script id="fragmentShader" type="x-shader/x-fragment">
+					//============================================================
+		//PUT YOUR GLSL CODE HERE
+		//============================================================
+
+        precision mediump float;
+        
+        uniform vec2 resolution;
+        uniform vec2 mouse;
+        uniform highp float time;
+        
+        float randfm(float x,float freq, float amp) {
+                return sin((cos(x*freq)*amp));
+        }
+        
+        void main(){
+            
+        	vec2 pos = gl_FragCoord.xy/resolution;
+        
+        //you can do it twice - and it can produce some good results
+        //If you want it to look like noise, you need to increase the amplitude of the modulator
+        
+            float x = randfm(pos.y,10.,10.);
+            float y = randfm(pos.x,10.,10.);
+        
+        //Observation:
+        //Frequency adjustment 
+        //Frequency affects number of repetition of the pattern, the width of each pattern is the same
+        //Higher frequency gives more repetition of the pattern, smaller frequency has less repetition of the pattern, but width of the pattern remains the same
+
+        //Amplitude adjustment
+        //Amplitude affects the clarity and contrast of the lines/pattern
+        //Higher amplitude gives out clearer lines/patterns, smaller frequency gives out blurrer lines/patterns
+
+        //Why is this happening?
+        //The pattern displayed with this code seems to resemble a longitudinal waveform. If we keep one of the axis as 0, we could see the either a vertical longitudinal waveform
+        //if we keep y-axis on or a horizontal longitudinal waveform if we keep x-axis on. The compression and rarefaction of the waveform can be seen
+        //By changing the frequency we could see an increase of the pattern repetition.
+        //This is because the frequency controls how fast the oscillation happens. 
+        //Higher frequency makes the compression closer and rarefaction smaller, thus resulting in more repetition in a period and vice versa.
+        //By changing the amplitude we could see an increase of contrast and clarity of the lines.
+        //This is because the amplitude controls magnitude of the waveform.
+        //Higher amplitude increases the magnitude of the waveform, making it brighter and clearer. 
+        //It will be less clear when the amplitude decreases.
+
+
+            float colour =y + x ;
+            //colour=floor(colour);
+            //colour=fract(colour);
+        	gl_FragColor = vec4(vec3(colour),1.0);
+        }
+		//============================================================
+		//END OF GLSL CODE
+		//============================================================
+	</script>
+	<script>
+		//change the resolution here. 1 is highest
+		var pixel_resolution = 2;
+		var container, stats;
+		var camera, scene, renderer;
+		var uniforms;
+		init();
+		animate();
+		function init() {
+			container = document.getElementById('container');
+			camera = new THREE.Camera();
+			camera.position.z = 1;
+			scene = new THREE.Scene();
+			var geometry = new THREE.PlaneBufferGeometry(2, 2);
+			uniforms = { time: { type: 'f', value: 1.0 }, resolution: { type: 'v2', value: new THREE.Vector2() }, mouse: {type: "v2", value: new THREE.Vector2()}};
+			var material = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: document.getElementById('vertexShader').textContent, fragmentShader: document.getElementById('fragmentShader').textContent });
+			var mesh = new THREE.Mesh(geometry, material);
+			scene.add(mesh);
+			renderer = new THREE.WebGLRenderer();
+			//Hack here to change resolution 
+			renderer.setPixelRatio(window.devicePixelRatio / pixel_resolution);
+			container.appendChild(renderer.domElement);
+			onWindowResize();
+			window.addEventListener('resize', onWindowResize, false);
+	        window.addEventListener('mousemove', onMouseMove, false);
+
+		}
+		function onWindowResize(event) {
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			uniforms.resolution.value.x = renderer.domElement.width;
+			uniforms.resolution.value.y = renderer.domElement.height;
+
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			render();
+		}
+		function onMouseMove( event ) {
+        	uniforms.mouse.value.x = 2 * ( event.clientX / window.innerWidth );
+ 	        uniforms.mouse.value.y = 2 * ( 1-(event.clientY) / window.innerHeight
+ 	        );
+        }
+		function render() {
+			uniforms.time.value += 0.01;
+			renderer.render(scene, camera);
+		}
+	</script>
+</body>
+</html>
