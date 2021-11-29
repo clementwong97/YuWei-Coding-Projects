@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src = "https://mimicproject.com/libs/nexusUI.js"></script>
+ <script src = "https://mimicproject.com/libs/maximilian.v.0.1.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Staatliches" rel="stylesheet"/>  
+ <link rel="stylesheet" href="https://mimicproject.com/libs/maximilian-example.css" /> 
+   <div>
+    <div id="title">Maximilian.Yuwei</div>
+    <div id="subtitle">Trick OR Treat?</div>
+  <div><button id="playButton">Play</button></div>
+</div>
+<div id="oscilloscope"></div>
+<div id="spectrogram"></div>
+</head>
+<body>
+  
+  <!-- Maximilian code goes here -->
+  <script id = "myAudioScript">
+    var osc1 = new Maximilian.maxiOsc();
+    var osc2 = new Maximilian.maxiOsc();
+    var osc3 = new Maximilian.maxiOsc();
+    var osc4 = new Maximilian.maxiOsc();
+    var osc5 = new Maximilian.maxiOsc();
+    var osc6 = new Maximilian.maxiOsc();
+    
+    
+    var modulator = new Maximilian.maxiOsc();
+    
+    
+    var speed = 180;
+    //var song1 = [60, 60, 60, 60, 64, 64, 64, 64, 67, 67, 67, 67, 72, 72, 72, 72,  64, 64, 64, 64, 68, 68, 68, 68, 71, 71, 71,76,76,76,76];
+    var bsus4 = [58, 60, 62, 72, ];
+    var c_major = [60, 64, 67, 72, ];
+    var c_minor = [60, 65, 68, 73, ];
+    var d_major = [62, 66, 69, 74, ];
+    var d_minor = [62, 67, 70, 75,];
+    var e_major = [64, 68, 71, 76, ];
+    var e_minor = [64, 67, 71, 76,];
+    var f_major = [65, 69, 72, 77, ];
+    var f_minor = [65, 71, 74, 79,];
+    var g_major = [67, 69, 72, 77, ];
+    var g_minor = [67, 73, 76, 81, ];
+    var a_major = [69, 74, 77, 82, ];
+    var a_minor = [69, 75, 78, 83, ];
+    var b_major = [72, 74, 77, 82, ];
+    var b_minor = [72, 75, 78, 83, ];
+    
+    var chords = [ 
+      c_major, c_major, c_major, c_major, 
+      c_major, c_major, c_major, c_major,
+      e_minor, e_minor, e_minor, e_minor,
+      g_major, g_major, f_major, f_major, 
+      
+      c_major, c_major, c_major, c_major,
+      c_major, c_major, c_major, c_major,
+      a_minor, a_minor, b_minor, b_minor,
+      a_minor, a_minor, b_minor, b_minor,
+      
+      c_major, c_major, c_major, c_major, 
+      c_major, c_major, c_major, c_major,
+      e_minor, e_minor, e_minor, e_minor,
+      g_major, g_major, f_major, f_major, 
+      
+      c_major, c_major, f_major, f_major,
+      c_major, c_major, c_major, c_major,
+      a_minor, a_minor, b_minor, b_minor,
+      a_minor, a_minor, b_minor, b_minor,
+      
+      c_major, c_major, g_major, g_major,
+      f_major, f_major, c_major, c_major,
+      a_minor, a_minor, b_minor, b_minor,
+      a_minor, a_minor, b_minor, b_minor,
+      
+      g_major, g_major, g_major, g_major,
+      e_minor, e_minor, f_minor, f_minor,
+      g_major, g_major, f_major, f_major,
+      g_major, g_major, f_major, f_major,
+      
+      f_major, f_major, a_minor, a_minor, 
+      g_major, g_major, b_minor, b_minor,
+      b_major, b_major, c_minor, c_minor, 
+      f_major, f_major, b_minor, b_minor,
+      
+      a_major, a_major, b_minor, b_minor, 
+      g_major, g_major, f_minor, f_minor,
+      c_major, c_major, c_minor, c_minor, 
+      bsus4, bsus4, bsus4, bsus4,
+      bsus4, bsus4, bsus4, bsus4,
+      
+      c_major, c_major, bsus4, bsus4, 
+      c_major, c_major, d_major, d_major,
+      e_minor, e_minor, bsus4, bsus4,
+      bsus4, bsus4,  g_major, g_major,
+    ]; 
+    
+    
+    
+//     var chords = [ 
+//       c_major, c_major, c_major, c_major, 
+//       e_minor, e_minor, e_minor, e_minor,
+//       g_major, g_major, g_major, g_major,
+//       f_major, f_major, f_major, f_major,  
+//       c_major, c_major, c_major, c_major,
+//       c_major, c_major, c_major, c_major,];
+   // var chords2 = [ c_major, g_minor, e_major, f_major];
+    
+  //  var chord_group = [chords, chords2];
+    var chord_now_play = c_major;
+  //  var chord_group_now_play2 = chord_group;
+    var note = 60;
+    
+    
+    var clock = new Maximilian.maxiClock();
+    clock.setTempo(speed);
+    clock.setTicksPerBeat(4);
+    
+    var count = 0;
+    
+    var a = Math.floor(Math.random()*20)
+  //  var b = Math.floor(Math.random()*10)
+    /*
+    
+    44100
+    
+    */
+  
+    function play() {
+      
+      
+//       var controller = (modulator.sinewave(100) + 1)/2; // range: 0 - 1
+      
+       clock.ticker();
+       
+       
+       
+       if (clock.ticker /*&& (0 <= count <64)*/) {
+           
+         
+           //note = song1[clock.playHead % song1.length]
+         chord_now_play = chords[clock.playHead % chords.length]
+        // count = count +1;
+         
+           
+       }
+       
+       
+       
+//        if (count == 64){
+         
+// //         chord_now_play2 = chords2[clock.playHead % chords.length]
+// //          count = count +1;
+         
+         
+         
+//        }
+      
+      
+       var out = osc1.sinewave(mtof(chord_now_play[0])) + 
+                 osc2.sinewave(mtof(chord_now_play[1]))*0.5 + 
+                 osc3.sinewave(mtof(chord_now_play[2]))*0.7 +
+                 osc4.sinewave(mtof(chord_now_play[3]))*0.4 +
+osc5.saw(20 * osc4.sinewave(40))*0.1 +
+osc6.coswave(10*a)*0.03
+                 //osc5.sinewave(mtof(chord_now_play[4])) +
+                // osc4.sinewave(mtof(chord_now_play[5]))
+       
+//        var out2 = osc1.sinewave(mtof(chord_now_play2[0])) + 
+//                  osc2.sinewave(mtof(chord_now_play2[1])) + 
+//                  osc3.sinewave(mtof(chord_now_play2[2])) +
+//                  osc4.sinewave(mtof(chord_now_play2[3]))
+       
+        return out;
+      
+      
+       //chord_now_play:  60, 64, 67, 72
+      //original
+//       var out = osc1.sinewave(mtof(chord_now_play[0])) + 
+//                 osc2.sinewave(mtof(chord_now_play[1])) + 
+//                 osc3.sinewave(mtof(chord_now_play[2])) +
+//                osc4.sinewave(mtof(chord_now_play[3]))
+       
+//         return out;
+       
+       //return out;
+      /* 
+      
+      400 - G3
+      500 - B3
+      
+      G3  B3  D4
+      
+      */
+      
+      
+      
+      
+      //mtof(48) C1
+      //mtof(60) C2
+      //mtof(64) E3
+      //mtof(67) G3
+      //mtof(72) C3
+//       var c_major = osc1.sinewave(mtof(60)) + osc2.sinewave(mtof(64)) + osc3.sinewave(mtof(67))
+      
+     
+    }
+  </script>
+  
+ <!-- Main Javascript code goes here --> 
+  <script language="javascript">
+    let maxi;
+    initAudioEngine().then((dspEngine)=>{ 
+      maxi = dspEngine;
+      setup();
+      //Get audio code from script element
+      maxi.setAudioCode("myAudioScript");
+    })
+    
+    ///////YOU CAN IGNORE ME - CODE FOR SCOPES///////
+    let setup = ()=> {
+      maxi.hush()
+      Nexus.context = maxi.audioWorkletNode.context;
+      new Nexus.Oscilloscope('oscilloscope', {'size': [400,100]}).connect(maxi.audioWorkletNode);
+      new Nexus.Spectrogram('spectrogram', {'size': [400,100]}).connect(maxi.audioWorkletNode);
+      const playButton = document.getElementById('playButton');   
+      let playAudio = () => {
+        playButton.innerHTML  = maxi.play() ? "STOP":"PLAY"
+      }
+      playButton.addEventListener("click", () => playAudio());
+    }
+    ///////////////////////////////////////////////
+  </script>
+</body>
+</html>

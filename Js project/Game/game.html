@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>three.js - pointerlock controls</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+				font-family: arial;
+			}
+			#blocker {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0,0,0,0.5);
+			}
+			#instructions {
+				width: 100%;
+				height: 100%;
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+				color: #ffffff;
+				text-align: center;
+				cursor: pointer;
+			}
+		</style>
+    </head>
+	<body>
+        <div id="blocker">
+
+			<div id="instructions">
+				<span style="font-size:40px">Click to play</span>
+				<br />
+				(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+			</div>
+
+		</div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script src="./orbitcontrol.js"></script>
+        <script type="module" src="./PointerLockControls.js"></script>
+        <script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+
+		<script type="module">
+            
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js';
+        import { PointerLockControls } from './PointerLockControls.js';
+        import Stats from 'https://threejs.org/examples/js/libs/stats.min.js';
+
+        var camera, scene, renderer;
+        var geometry, material, mesh;
+        var controls;
+        var objects = [];
+        var raycaster;
+        var blocker = document.getElementById( 'blocker' );
+		var instructions = document.getElementById( 'instructions' );
+
+        var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+        if ( havePointerLock ) {
+            var element = document.body;
+            var pointerlockchange = function ( event ) {
+                if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+                    controlsEnabled = true;
+                    controls.enabled = true;
+                    blocker.style.display = 'none';
+                } else {
+                    controls.enabled = false;
+                    blocker.style.display = '-webkit-box';
+                    blocker.style.display = '-moz-box';
+                    blocker.style.display = 'box';
+                    instructions.style.display = '';
+                }
+            };
+            var pointerlockerror = function ( event ) {
+                instructions.style.display = '';
+            };
+            // Hook pointer lock state change events
+            document.addEventListener( 'pointerlockchange', pointerlockchange, false );
+            document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
+            document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+            document.addEventListener( 'pointerlockerror', pointerlockerror, false );
+            document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
+            document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+            instructions.addEventListener( 'click', function ( event ) {
+                instructions.style.display = 'none';
+                // Ask the browser to lock the pointer
+                element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+                if ( /Firefox/i.test( navigator.userAgent ) ) {
+                    var fullscreenchange = function ( event ) {
+                        if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+                            document.removeEventListener( 'fullscreenchange', fullscreenchange );
+                            document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+                            element.requestPointerLock();
+                        }
+                    };
+                    document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+                    document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+                    element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+                    element.requestFullscreen();
+                } else {
+                    element.requestPointerLock();
+                }
+            }, false );
+        } 
+        else {
+            instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+        }
+
+
+        var controlsEnabled = false;
+        var moveForward = false;
+        var moveBackward = false;
+        var moveLeft = false;
+        var moveRight = false;
+        var canJump = false;
+        var prevTime = performance.now();
+        var velocity = new THREE.Vector3();
+        function init()
+        {
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+            var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+            light.position.set( 0.5, 1, 0.75 );
+            scene.add( light );
+            controls = new PointerLockControls( camera, document.body );
+            scene.add( controls.getObject() );
+            var onKeyDown = function ( event ) {
+                switch ( event.keyCode ) {
+                    case 38: // up
+                    case 87: // w
+                        moveForward = true;
+                        break;
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = true; break;
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = true;
+                        break;
+                    case 39: // right
+                    case 68: // d
+                        moveRight = true;
+                        break;
+                    case 32: // space
+                        if ( canJump === true ) velocity.y += 350;
+                        canJump = false;
+                        break;
+                }
+            };
+            var onKeyUp = function ( event ) {
+                switch( event.keyCode ) {
+                    case 38: // up
+                    case 87: // w
+                        moveForward = false;
+                        break;
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = false;
+                        break;
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = false;
+                        break;
+                    case 39: // right
+                    case 68: // d
+                        moveRight = false;
+                        break;
+                }
+            };
+				
+            document.addEventListener( 'keydown', onKeyDown, false );
+            document.addEventListener( 'keyup', onKeyUp, false );
+            raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+        
+        
+
+            // const controls = new PointerLockControls(camera, renderer.domElement)
+            // //controls.addEventListener('change', () => console.log("Controls Change"))
+            // controls.addEventListener('lock', () => (menuPanel.style.display = 'none'))
+            // controls.addEventListener('unlock', () => (menuPanel.style.display = 'block'))
+
+            const planeGeometry = new THREE.PlaneGeometry(100, 100, 50, 50)
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x00ff00,
+                wireframe: true,
+            })
+            const plane = new THREE.Mesh(planeGeometry, material)
+            plane.rotateX(-Math.PI / 2)
+            scene.add(plane)
+
+            const onKeyDown = function (event) {
+                switch (event.code) {
+                    case 'KeyW':
+                        controls.moveForward(0.25)
+                        break
+                    case 'KeyA':
+                        controls.moveRight(-0.25)
+                        break
+                    case 'KeyS':
+                        controls.moveForward(-0.25)
+                        break
+                    case 'KeyD':
+                        controls.moveRight(0.25)
+                        break
+                }
+            };
+            document.addEventListener('keydown', onKeyDown, false)
+
+            window.addEventListener('resize', onWindowResize, false)
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight
+                camera.updateProjectionMatrix()
+                renderer.setSize(window.innerWidth, window.innerHeight)
+                render()
+            }
+
+            const stats = Stats()
+            document.body.appendChild(stats.dom)
+
+            animate();
+        }
+        
+
+        function animate() {
+            requestAnimationFrame(animate)
+
+            //controls.update()
+
+            render()
+
+            stats.update()
+        }
+
+        function render() {
+            renderer.render(scene, camera)
+        }
+
+        init();
+		</script>
+	</body>
+</html>
