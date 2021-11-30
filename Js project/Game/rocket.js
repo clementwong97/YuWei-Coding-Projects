@@ -184,7 +184,7 @@ var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement
             //cylinder2.position.set(0, 200, 0);
 
                 cylinder2.position.x = 0;
-                cylinder2.position.y = rocket_position;
+                cylinder2.position.y = 200;
                 cylinder2.position.z = 0;
 
                 scene.add( cylinder2 );

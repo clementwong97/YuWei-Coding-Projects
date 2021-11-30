@@ -35,7 +35,7 @@
                 15000
             );
 
-            camera.position.set(0,0,5000);
+            camera.position.set(0,-500,5000);
             
             renderer = new THREE.WebGLRenderer({ antialias:true });
 
@@ -95,23 +95,23 @@
             
             
             
-            //Add Top
-            const geometry = new THREE.ConeGeometry( 300, 400, 32 );
-            const material = new THREE.MeshBasicMaterial( {color:0xffff00  } );
-            const cone = new THREE.Mesh( geometry, material );
-            //let ConeGeometry.position = ()
-            cone.position.set(0, 400, 0);
-            scene.add( cone );  
+            // //Add Top
+            // const geometry = new THREE.ConeGeometry( 300, 400, 32 );
+            // const material = new THREE.MeshBasicMaterial( {color:0xffff00  } );
+            // const cone = new THREE.Mesh( geometry, material );
+            // //let ConeGeometry.position = ()
+            // cone.position.set(0, 400, 0);
+            // scene.add( cone );  
           
             
             
             
-            //body
-            const geometry2 = new THREE.CylinderGeometry( 300 , 500, 1000, 520 );
-            const material2 = new THREE.MeshBasicMaterial( {color: 0x00000ff} );
-            const cylinder = new THREE.Mesh( geometry2, material2 );
-            cylinder.position.set(0, -300, 0);
-            scene.add( cylinder );
+            // //body
+            // const geometry2 = new THREE.CylinderGeometry( 300 , 500, 1000, 520 );
+            // const material2 = new THREE.MeshBasicMaterial( {color: 0x00000ff} );
+            // const cylinder = new THREE.Mesh( geometry2, material2 );
+            // cylinder.position.set(0, -300, 0);
+            // scene.add( cylinder );
             
             
             //OctahedronGeometry
