@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <script src = "https://mimicproject.com/libs/nexusUI.js"></script>
+  <script src = "https://mimicproject.com/libs/maximilian.js"></script>
+  <script src= "audio.js"></script>
+   <script src = "orbitControls.js"></script>
+ <link href="https://fonts.googleapis.com/css?family=Staatliches" rel="stylesheet"/>  
+ <link rel="stylesheet" href="styleCSS" />
+ 
+   <div>
+    <div id="title">TIME</div>
+  
+  <div><button id="playButton">Play</button></div>
+</div>
+<div id="oscilloscope"></div>
+<div id="spectrogram"></div>
+  <div id="mouse"></div>
+ 
+</head>
+
+ 
+   <body>
+  
+    <script language="javascript" src="newTab1"></script>
+
+      <!--！！！！！ -->
+     <canvas id="myCanvas" width="300" height="300">
+</canvas>
+   
+  <!-- Maximilian code goes here -->
+  <script id = "myAudioScript">
+    var osc1 = new Maximilian.maxiOsc();
+    var osc2 = new Maximilian.maxiOsc();
+  
+
+ 
+        function play() {
+          return (osc1.saw(1)) * 1;
+        }
+ //     var osc4 = new Maximilian.maxiOsc(); 
+    function play() {
+      return osc1.saw(1)*a + osc2.saw(a*b*0.1)*b
+    if (a++>b)
+    {
+        return;
+   }
+    }
+// for(var i=0;i<10;i++)
+// {
+ let a = Math.floor(2)
+ let b = Math.floor(1) 
+
+//  }
+ //let a = Math.floor(Math.random(i)*100) 
+//  var i=0;i<10;i++；
+ //let b = Math.floor(Math.random()*10)  
+ 
+  </script>
+  
+ <!-- Main Javascript code goes here --> 
+  <script language="javascript" type="module">
+    
+    import {
+      maxi
+      } from "https://mimicproject.com/libs/maximilian.v.0.1.mjs"
+    
+    maxi.hush()
+    //Get audio code from script element
+    maxi.setAudioCode("myAudioScript");
+    
+    
+    ///////YOU CAN IGNORE ME - CODE FOR SCOPES///////
+    Nexus.context = maxi.audioWorkletNode.context;
+    new Nexus.Oscilloscope('oscilloscope', {'size': [400,100]}).connect(maxi.audioWorkletNode);
+    new Nexus.Spectrogram('spectrogram', {'size': [400,100]}).connect(maxi.audioWorkletNode);
+    const playButton = document.getElementById('playButton');   
+    let playAudio = () => {
+      playButton.innerHTML  = maxi.play() ? "STOP":"PLAY"
+    }
+    
+    let playAudio2 = () => {
+      playButton.innerHTML  = maxi.play2() ? "STOP":"PLAY"
+    }
+    
+   
+    playButton.addEventListener("click", () => playAudio());
+     playButton.addEventListener= playAudio2();
+    ///////////////////////////////////////////////
+  </script>
+</body>
+</html>
